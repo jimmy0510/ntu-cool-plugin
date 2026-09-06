@@ -1,0 +1,6 @@
+{
+  "name": "ntu-cool",
+  "version": "1.6.0",
+  "description": "在 Claude Code 裡操作台大 NTU COOL（Canvas LMS）：查課程、作業、公告、成績，以及從本機繳交作業。優先走 REST API，不動使用者的瀏覽器。",
+  "keywords": ["ntu", "cool", "canvas", "lms", "taiwan"]
+}

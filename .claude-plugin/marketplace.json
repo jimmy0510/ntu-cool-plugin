@@ -1,0 +1,11 @@
+{
+  "name": "ntu-cool",
+  "owner": { "name": "NTU COOL plugin" },
+  "plugins": [
+    {
+      "name": "ntu-cool",
+      "source": "./",
+      "description": "在 Claude Code 裡操作台大 NTU COOL（Canvas LMS）。"
+    }
+  ]
+}
