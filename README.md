@@ -27,9 +27,13 @@
 ## 安裝
 
 ```
-/plugin marketplace add <你的 GitHub 帳號>/ntu-cool-plugin
+/plugin marketplace add jimmy0510/ntu-cool-plugin
 /plugin install ntu-cool@ntu-cool
 ```
+
+這是**私有** repo。第一步會需要你的 GitHub 帳號有存取權（開發者邀請你當協作者）
+以及本機的 git 有登入 GitHub —— Windows 的 Git 會自動跳出瀏覽器登入，
+沒跳的話先跑一次 `gh auth login`。
 
 需要 **Node.js 20.12 以上**（用到 `process.loadEnvFile`）。無其他相依套件。
 
