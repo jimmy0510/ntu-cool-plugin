@@ -22,16 +22,59 @@
 
 **不同意以上條款請勿使用。**
 
-## 安裝
+## 下載與安裝
+
+### 事前準備
+
+1. **Claude Code**（終端機版或 Claude 桌面 App 的 Code 分頁都可以）。
+2. **Google Chrome** 加上 **Claude in Chrome** 擴充功能，並連上 Claude（主路線要用）。
+3. 能存取這個 repo 的 **GitHub 帳號**：這是私有 repo，先請開發者把你加成協作者，
+   到信箱或 GitHub 通知按「Accept invitation」。
+4. （選用）**Node.js 20.12 以上**，只有走權杖備援才需要。
+
+### 方法一：直接從 GitHub 安裝（推薦，之後好更新）
+
+在 Claude Code 裡依序輸入：
 
 ```
 /plugin marketplace add jimmy0510/ntu-cool-plugin
 /plugin install ntu-cool@ntu-cool
 ```
 
-這是**私有** repo。第一步會需要你的 GitHub 帳號有存取權（開發者邀請你當協作者）
-以及本機的 git 有登入 GitHub —— Windows 的 Git 會自動跳出瀏覽器登入，
-沒跳的話先跑一次 `gh auth login`。
+第一行要你本機的 git 登入過 GitHub。Windows 的 Git 會自動跳出瀏覽器讓你登入；
+沒跳、或出現 `Repository not found`，先在終端機跑一次：
+
+```bash
+gh auth login
+```
+
+（沒有 `gh` 就先到 <https://cli.github.com> 安裝，或確認你已經接受協作者邀請。）
+
+### 方法二：下載 ZIP 再安裝
+
+1. 打開 <https://github.com/jimmy0510/ntu-cool-plugin>（要先登入 GitHub），
+   按綠色的「**Code**」→「**Download ZIP**」。
+2. 解壓縮到一個**固定的位置**，例如 `C:\Users\你的名字\ntu-cool-plugin`
+   （之後不要搬動或刪掉，Claude Code 會從這裡讀）。
+3. 在 Claude Code 裡輸入（路徑換成你解壓縮的資料夾，裡面要看得到 `.claude-plugin`）：
+
+   ```
+   /plugin marketplace add C:\Users\你的名字\ntu-cool-plugin
+   /plugin install ntu-cool@ntu-cool
+   ```
+
+### 裝好之後
+
+重開 Claude Code，輸入 `/ntu-setup`，照著它一步一步做完就能用了（見下面〈兩條路線〉）。
+
+### 更新與移除
+
+```
+/plugin marketplace update ntu-cool
+/plugin uninstall ntu-cool@ntu-cool
+```
+
+用 ZIP 安裝的人要更新時，重新下載 ZIP 覆蓋原本的資料夾，再跑上面的 `update`。
 
 ## 兩條路線
 
