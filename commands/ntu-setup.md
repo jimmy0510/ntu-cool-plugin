@@ -57,9 +57,11 @@ Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡�
    ```js
    location.pathname.startsWith('/login') ? '未登入' : '已登入'
    ```
-3. `未登入` → 跟他說「請你在剛開的那個分頁自己登入 NTU COOL，好了跟我說」。
-   台大是 SSO（會跳到 `adfs.ntu.edu.tw`），登完會自己跳回來。
-   他說好了，重新 `navigate` 到 `https://cool.ntu.edu.tw/` 再跑一次步驟 2 的判斷確認。
+3. `未登入` → 頁面會跳到台大 SSO（`adfs.ntu.edu.tw`）。
+   先照 SKILL.md〈半自動登入〉嘗試用 Chrome 密碼管理員填入帳密：
+   點帳號欄位觸發建議清單 → 選帳號 → Chrome 自動填密碼 → 請使用者按登入。
+   如果密碼管理員沒有跳出來（使用者沒存過），就請他自己在分頁裡登入，好了跟你說。
+   登完會自己跳回 `cool.ntu.edu.tw`，重新 `navigate` 再跑一次步驟 2 的判斷確認。
 4. `已登入` → 進步驟 4 驗證。
 
 ## 步驟 4：你自己驗證並建課號快取
