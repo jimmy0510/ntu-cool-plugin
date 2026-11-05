@@ -58,7 +58,7 @@ Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡�
    location.pathname.startsWith('/login') ? '未登入' : '已登入'
    ```
 3. `未登入` → 跟他說「請你在剛開的那個分頁自己登入 NTU COOL，好了跟我說」。
-   **絕不代替他輸入帳號密碼。** 台大是 SSO（會跳到 `adfs.ntu.edu.tw`），登完會自己跳回來。
+   台大是 SSO（會跳到 `adfs.ntu.edu.tw`），登完會自己跳回來。
    他說好了，重新 `navigate` 到 `https://cool.ntu.edu.tw/` 再跑一次步驟 2 的判斷確認。
 4. `已登入` → 進步驟 4 驗證。
 
@@ -147,5 +147,4 @@ node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status
 - **不要**讀取或印出 `token.env`，權杖值永遠不進對話。
 - **不要**一次丟一堆步驟，一次一個動作，等他回覆。
 - 他說「找不到」「看不到」時，改問他螢幕上看到什麼，再針對他的畫面給下一步。
-- 絕不代替他登入或輸入帳號密碼。
 - 能你執行的就你執行，不要把工作推給使用者。
