@@ -66,14 +66,25 @@ Claude 會替你跑下面方法一的兩行指令。
 
 重開 Claude Code，輸入 `/ntu-setup`，照著它一步一步做完就能用了（見下面〈兩條路線〉）。
 
-### 更新與移除
+### 開啟自動更新（建議）
+
+自動更新預設是關的，開一次之後每次啟動 Claude Code 都會自己抓新版：
+
+1. 在 Claude Code 輸入 `/plugin`。
+2. 切到「**Marketplaces**」分頁，選 `ntu-cool`。
+3. 選「**Enable auto-update**」。
+
+沒開的話，也可以直接跟 Claude 說「幫我更新 ntu-cool plugin」，更新完重開 Claude Code。
+
+### 手動更新與移除
 
 ```
 /plugin marketplace update ntu-cool
+/plugin update ntu-cool@ntu-cool
 /plugin uninstall ntu-cool@ntu-cool
 ```
 
-用 ZIP 安裝的人要更新時，重新下載 ZIP 覆蓋原本的資料夾，再跑上面的 `update`。
+用 ZIP 安裝的人沒辦法自動更新，要重新下載 ZIP 覆蓋原本的資料夾，再跑上面兩行 `update`。
 
 ## 兩條路線
 
