@@ -14,7 +14,8 @@
 //    不用了就刪：node create-token.mjs --list / --delete <id>
 //
 // 用法：
-//   node create-token.mjs --import                                # 從剪貼簿匯入已建好的權杖（最少步驟）
+//   node create-token.mjs --receive                               # 開本機接收端，讓 Chrome 分頁建好權杖直接送來存（推薦）
+//   node create-token.mjs --import                                # 從剪貼簿匯入已建好的權杖
 //   node create-token.mjs --from-clipboard --save                 # 從剪貼簿讀 cookie 換權杖
 //   NTU_COOL_COOKIE='整串 cookie' node create-token.mjs --save    # 用環境變數給 cookie
 //   NTU_COOL_COOKIE='整串 cookie' node create-token.mjs           # 只建，不印出值
@@ -95,6 +96,54 @@ async function main() {
     console.log('已設定');
     console.error(`帳號：${parse(await me.text()).name}｜權杖 id：${storedId ?? '未記錄'}｜到期：${expiryText(expiresAt)}`);
     return 0;
+  }
+
+  // ── 從已登入的 Chrome 分頁直接收一把權杖 ──
+  // 在本機 127.0.0.1 開一個只收一次的接收端，印出 PORT 和一次性 NONCE。
+  // Claude 在 NTU COOL 分頁裡建權杖後直接 POST 到這裡，權杖值不經過對話。
+  if (has('--receive')) {
+    const { createServer } = await import('node:http');
+    const { randomBytes } = await import('node:crypto');
+    const nonce = randomBytes(16).toString('hex');
+    const cors = {
+      'Access-Control-Allow-Origin': BASE,
+      'Access-Control-Allow-Methods': 'POST',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Private-Network': 'true', // Chrome 從 https 頁面打 localhost 要這個
+    };
+    return await new Promise((resolve) => {
+      const server = createServer(async (req, res) => {
+        if (req.method === 'OPTIONS') { res.writeHead(204, cors).end(); return; }
+        // 先 ping：讓 Chrome 在建權杖「之前」就跳出區域網路權限詢問，確認連得上才建，免得建了送不到
+        if (req.url === `/ping?n=${nonce}`) { res.writeHead(200, cors).end('pong'); return; }
+        const ok = req.method === 'POST' && req.url === `/token?n=${nonce}` && req.headers.origin === BASE;
+        if (!ok) { res.writeHead(403, cors).end('forbidden'); return; }
+        let body = '';
+        for await (const chunk of req) { body += chunk; if (body.length > 10000) break; }
+        let t;
+        try { t = JSON.parse(body); } catch { res.writeHead(400, cors).end('bad json'); return; }
+        const tok = String(t.token || '').trim();
+        const check = tok && !/\s/.test(tok) && await fetch(`${BASE}/api/v1/users/self`, {
+          headers: { Authorization: `Bearer ${tok}`, Accept: 'application/json' },
+        });
+        if (!check || !check.ok) {
+          res.writeHead(400, cors).end('token invalid');
+          console.error('收到的權杖驗證失敗，沒有存檔。');
+          server.close(); clearTimeout(timer); resolve(1); return;
+        }
+        saveToken(tok, t.id, t.expires_at);
+        res.writeHead(200, cors).end('saved');
+        console.log(`✅ 已存到 ${TOKEN_FILE}（id: ${t.id}｜到期: ${expiryText(t.expires_at)}）`);
+        server.close(); clearTimeout(timer); resolve(0);
+      });
+      const timer = setTimeout(() => {
+        console.error('等了 3 分鐘沒收到權杖，接收端已關閉。');
+        server.close(); resolve(1);
+      }, 180_000);
+      server.listen(0, '127.0.0.1', () => {
+        console.log(`PORT=${server.address().port} NONCE=${nonce}`);
+      });
+    });
   }
 
   // ── 從剪貼簿匯入一把「已經建好」的權杖 ──

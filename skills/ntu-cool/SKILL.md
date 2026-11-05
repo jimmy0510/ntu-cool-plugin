@@ -41,11 +41,42 @@ NTU COOL 是台大的線上學習系統（LMS），網址 https://cool.ntu.edu.t
 
 設定或登入完成後，**回頭把他原本問的事做完**，不要讓他重問一次。
 
-> **備援（權杖）**：沒有 Chrome、或要寫後端排程時，才用同目錄的 `create-token.mjs` / `submit.mjs`。
+> **備援（權杖）**：要寫後端排程、或使用者明確要本機腳本時，才用同目錄的 `create-token.mjs` / `submit.mjs`。
 > 先跑 `node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status`：
 > `已設定` 就能用 `node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/submit.mjs" --url <作業網址> <檔案> --dry-run`；
-> `未設定`／`已失效` → 走 `ntu-setup` 的〈備援〉段。權杖會被學校作廢，所以不是預設。
+> `未設定`／`已失效` → 照下面〈從 Chrome 自動建權杖〉重建，**不用叫使用者複製 cookie**。
 > **不要 `cat` `~/.ntu-cool/token.env`**，權杖值不能進對話。
+
+## 從 Chrome 自動建權杖（權杖備援失效時用）
+
+學校會作廢權杖，所以失效時就自動重建。使用者只要在 Chrome 登入著，什麼都不用做：
+
+1. **背景**啟動接收端（`run_in_background`），讀它的輸出拿到第一行 `PORT=… NONCE=…`：
+   ```bash
+   node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --receive
+   ```
+   它只收一次、3 分鐘後自動關閉，只聽 `127.0.0.1`，只收來自 cool.ntu.edu.tw 且帶對 NONCE 的請求。
+2. 在已登入的 NTU COOL 分頁**先 ping**（把 PORT、NONCE 換成上一步的值）：
+   ```js
+   await fetch('http://127.0.0.1:PORT/ping?n=NONCE', { signal: AbortSignal.timeout(30000) })
+     .then(r => r.text()).catch(e => 'ERR ' + e.name)
+   ```
+   - `pong` → 往下。
+   - 逾時或 `ERR` → Chrome 多半在網址列問「**允許存取這部裝置上的其他應用程式和服務**」（區域網路權限）。
+     請使用者按「允許」，再 ping 一次。**沒 pong 之前不要建權杖**，否則建了送不到，會在學校那邊留一把沒用的。
+3. 建權杖並直接送到接收端。**最後回傳的物件絕不能含 `visible_token`**：
+   ```js
+   const csrf = decodeURIComponent((document.cookie.match(/(?:^|; )_csrf_token=([^;]+)/) || [])[1] || '');
+   const r = await fetch('/api/v1/users/self/tokens', { method: 'POST',
+     headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+     body: JSON.stringify({ token: { purpose: 'claude-code', expires_at: '' } }) });
+   const t = JSON.parse((await r.text()).replace(/^while\(1\);/, ''));
+   const s = r.ok && t.visible_token && await fetch('http://127.0.0.1:PORT/token?n=NONCE', {
+     method: 'POST', headers: { 'Content-Type': 'text/plain' },
+     body: JSON.stringify({ token: t.visible_token, id: t.id, expires_at: t.expires_at }) });
+   ({ createStatus: r.status, id: t.id ?? null, saved: s ? await s.text() : null })
+   ```
+4. 背景程式印出 `✅ 已存到 …` 並結束就完成了，再跑一次 `--status` 確認是 `已設定`。
 
 ## API 輔助函式
 
