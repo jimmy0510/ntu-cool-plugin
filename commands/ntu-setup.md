@@ -58,8 +58,8 @@ Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡�
    location.pathname.startsWith('/login') ? '未登入' : '已登入'
    ```
 3. `未登入` → 頁面會跳到台大 SSO（`adfs.ntu.edu.tw`）。
-   先照 SKILL.md〈半自動登入〉嘗試用 Chrome 密碼管理員填入帳密：
-   點帳號欄位觸發建議清單 → 選帳號 → Chrome 自動填密碼 → 請使用者按登入。
+   先照 SKILL.md〈半自動登入〉讓瀏覽器的密碼管理員填好帳密（截圖確認，欄位空的就點一下帳號欄），
+   再請使用者按登入（Chrome 只填不送出）。
    如果密碼管理員沒有跳出來（使用者沒存過），就請他自己在分頁裡登入，好了跟你說。
    登完會自己跳回 `cool.ntu.edu.tw`，重新 `navigate` 再跑一次步驟 2 的判斷確認。
 4. `已登入` → 進步驟 4 驗證。
