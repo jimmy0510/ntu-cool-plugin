@@ -68,13 +68,15 @@ Claude 會替你跑下面方法一的兩行指令。
 
 ### 開啟自動更新（建議）
 
-自動更新預設是關的，開一次之後每次啟動 Claude Code 都會自己抓新版：
+自動更新預設是關的，開一次之後每次啟動 Claude Code 都會自己抓新版。
+桌面 App 的外掛頁面沒有這個開關，最簡單是直接跟 Claude 說：
 
-1. 在 Claude Code 輸入 `/plugin`。
-2. 切到「**Marketplaces**」分頁，選 `ntu-cool`。
-3. 選「**Enable auto-update**」。
+> 幫我把 ntu-cool plugin 開自動更新
 
-沒開的話，也可以直接跟 Claude 說「幫我更新 ntu-cool plugin」，更新完重開 Claude Code。
+Claude 會在 `~/.claude/settings.json` 的 `extraKnownMarketplaces.ntu-cool` 底下加上 `"autoUpdate": true`。
+（用終端機版的話，也可以輸入 `/plugin` → **Marketplaces** → `ntu-cool` → **Enable auto-update**。）
+
+沒抓到新版時，跟 Claude 說「幫我更新 ntu-cool plugin」，更新完重開 Claude Code。
 
 ### 手動更新與移除
 

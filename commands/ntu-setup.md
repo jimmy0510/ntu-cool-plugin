@@ -96,8 +96,10 @@ Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡�
 「我這禮拜有什麼作業要交？」「總經最新公告是什麼？」「幫我把桌面的報告.pdf 交到個經作業二」。
 順帶說明：只要 Chrome 保持登入就一直能用，交作業前一定會先給他確認。
 
-最後提醒他開自動更新（預設是關的，要他自己開）：
-「輸入 `/plugin` → 切到 **Marketplaces** 分頁 → 選 `ntu-cool` → **Enable auto-update**，之後有新版就會自動更新。」
+最後問他要不要開自動更新（預設是關的，桌面 App 的外掛頁面也沒有開關）。他說要，就你自己改：
+讀 `~/.claude/settings.json`，在 `extraKnownMarketplaces.ntu-cool` 底下加 `"autoUpdate": true`
+（沒有這個項目就補上 `"source": { "source": "github", "repo": "jimmy0510/ntu-cool-plugin" }`），
+其他設定一個字都不要動，改完確認還是合法 JSON。跟他說重開 Claude Code 後生效。
 
 設定完**回頭把他原本問的事做完**，不要讓他重問一次。
 
