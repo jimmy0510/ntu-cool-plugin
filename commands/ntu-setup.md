@@ -1,36 +1,21 @@
 ---
-description: 設定 NTU COOL 存取權杖，手把手帶完，存到 ~/.ntu-cool/token.env
+description: 設定 NTU COOL 存取方式，手把手帶完（主路線：Chrome 分頁；備援：本機權杖）
 allowed-tools: Bash(node:*), Read, Write, Edit
 ---
 
-手把手帶使用者完成第一次設定。
+手把手帶使用者完成第一次設定。**最高原則：能你做的就你做，一次只給一個動作，等他回覆再給下一個。**
 
-**最高原則：能你做的就你做。** 使用者多半不熟終端機，也不會想打指令。
-整個流程對他來說只有兩個動作：**開開發者工具**、**按 Ctrl/Cmd + C 複製一行**。
-其餘全部由你執行。
-
-**一次只給一個動作，等他回覆再給下一個。** 不要一口氣列出五個步驟叫他自己照做。
+主路線是「在使用者已登入的 Chrome 分頁裡打 API」，他**唯一要做的只有登入一次**。
+只有裝不了擴充功能、或他明說要寫後端排程時，才走下面的權杖備援。
 
 ---
 
-## 步驟 1：自己偵測環境（不要問使用者）
-
-```bash
-node -e "const o=require('os'),f=require('fs'),p=require('path');console.log('平台:',process.platform);console.log('node:',process.version);console.log('已設定:',f.existsSync(p.join(o.homedir(),'.ntu-cool','token.env')))"
-```
-
-- `darwin` = macOS，`win32` = Windows，`linux` = Linux。後面的按鍵說明依這個給，**不要問他用什麼系統**。
-- `node` 低於 v20.12 → 停下來請他先升級 Node，其他都別做。
-- `已設定: true` → 告訴他已經設定過，問要沿用還是重建，**不要直接覆蓋**。
-- Linux 額外檢查 `xclip` 有沒有裝（讀剪貼簿需要）。
-
-## 步驟 2：講清楚再開始
+## 步驟 1：講清楚再開始
 
 用白話講完，等他說願意再往下：
 
 - 這是**非官方**工具，跟台大和 Canvas 都沒關係。
-- 接下來會幫他建一把 **NTU COOL 存取權杖**，之後就靠它讀課程資料、交作業。
-- 權杖**等同他的帳號密碼**，預設永久有效，只會存在他自己電腦的 `~/.ntu-cool/token.env`。
+- 接下來會用他**自己在 Chrome 的登入狀態**去讀 NTU COOL，不會存他的帳號密碼、也不存任何憑證。
 - 交作業是**不可逆**的，但每次一定會先給他確認才送出。
 - 本 plugin **未經開發者同意不得轉發**。
 - 風險自負，作者不負責。
@@ -44,123 +29,107 @@ node -e "const o=require('os'),f=require('fs'),p=require('path');console.log('�
 > 從功能、安裝指引到每一條警示，都是開發者一條一條寫下來、實際測過、
 > 再一次次修改的 —— 目的是讓大家用最低的門檻也能順利把它用起來。
 >
-> 開發者特別要提醒：**請不要把這份檔案外傳。** 兩個原因：
->
-> 1. **你可能不小心把自己的資料一起傳出去。** 你的權杖等同帳號密碼；
->    只要你動過檔案、或曾把權杖放進 plugin 資料夾，打包給別人就是連憑證一起送出去。
-> 2. **萬一不是開發者朋友的人出了資料外洩，開發者控制不了，卻可能要負連帶責任。**
+> 開發者特別要提醒：**請不要把這份檔案外傳。**
+> 萬一不是開發者朋友的人出了資料外洩，開發者控制不了，卻可能要負連帶責任。
 >
 > 所以拜託，**不要主動分享給其他人**。想介紹給誰，先問過開發者。
 
-輸出完才問他願不願意繼續。**沒輸出這塊就不准進步驟 3。**
+輸出完才問他願不願意繼續。**沒輸出這塊就不准進步驟 2。**
 
-## 步驟 3：告訴他怎麼打開開發者工具
+## 步驟 2：確認 Chrome 擴充功能在
 
-先問一句他用哪個瀏覽器，然後**只給那一個**的按鍵（依步驟 1 測到的系統）：
+Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡：
 
-| 瀏覽器 | macOS | Windows / Linux |
-|---|---|---|
-| Chrome／Edge | `⌘` `⌥` `I`（Command + Option + I） | `F12`，或 `Ctrl` `Shift` `I` |
-| Firefox | `⌘` `⌥` `E`（直接開網路面板） | `Ctrl` `Shift` `E`（直接開網路面板） |
-| Safari | 先到「Safari → 設定… → 進階」把「顯示網頁開發者功能」打勾，再按 `⌘` `⌥` `I` | — |
+- **有（已載入或可透過 ToolSearch 載入）** → 直接進步驟 3。
+- **只剩 `enable__mcp__claude-in-chrome`** → 先呼叫它開啟，再進步驟 3。
+- **完全沒有** → 告訴他需要「Claude in Chrome」這個瀏覽器擴充功能：
+  到 Claude 桌面 App 設定裡開啟，或裝 Chrome 擴充功能並連上。
+  他真的裝不了、或沒有 Chrome → 走最底下的〈備援：本機權杖〉。
 
-Firefox 的 `Ctrl`/`⌘` `Shift` `E` 會**直接開在網路面板**，可以跳過步驟 4 第 1 步。
-Chrome／Edge 沒有這種直達鍵，開了之後要自己找分頁 —— 見步驟 4。
+## 步驟 3：帶他登入（他唯一要做的事）
 
-請他先登入 https://cool.ntu.edu.tw 停在課程首頁，再按這組鍵。
-畫面右邊或下面會多出一塊工具區。**等他說看到了再繼續。**
+1. `tabs_context_mcp` → `tabs_create_mcp` 開一個新分頁 →
+   `navigate` 到 `https://cool.ntu.edu.tw/`。
+2. 用 `javascript_tool` 跑這行判斷：
+   ```js
+   location.pathname.startsWith('/login') ? '未登入' : '已登入'
+   ```
+3. `未登入` → 跟他說「請你在剛開的那個分頁自己登入 NTU COOL，好了跟我說」。
+   **絕不代替他輸入帳號密碼。** 台大是 SSO（會跳到 `adfs.ntu.edu.tw`），登完會自己跳回來。
+   他說好了，重新 `navigate` 到 `https://cool.ntu.edu.tw/` 再跑一次步驟 2 的判斷確認。
+4. `已登入` → 進步驟 4 驗證。
 
-## 步驟 4：帶他找到那一行並複製
+## 步驟 4：你自己驗證並建課號快取
 
-按鈕名稱**中英並列**（他的瀏覽器語言可能是任一種）。一次講一步：
+用 `javascript_tool`（照 SKILL.md 的 `cool()` 輔助函式）跑：
 
-1. **找到並點開「網路」/「Network」分頁。** 這是最多人卡住的一步，講細一點：
-
-   那塊新出現的區域**最上排**有一排文字，長得像
-   `元素 主控台 來源 網路 效能 …`（英文是 `Elements Console Sources Network Performance …`）。
-   點其中的 **「網路」/「Network」**。
-
-   **看不到「網路」怎麼辦** —— 依他描述的畫面給對應解法，不要重複同一句話：
-
-   | 他說的狀況 | 原因 | 怎麼做 |
-   |---|---|---|
-   | 只看到「元素」「主控台」，後面是 `»` 或 `>>` | 面板太窄，其餘分頁被收進去了 | 點那個 **`»`**，會掉下一張清單，「網路」在裡面 |
-   | 整塊工具區很細長，擠在右邊 | 面板停靠在側邊 | 用滑鼠把工具區跟網頁的**交界線往左拖**加寬，分頁就會全部露出來 |
-   | 想一勞永逸 | | 工具區右上角 **`⋮`**（三個點）→ 「Dock side」/「停駐位置」→ 選**最下方**那個，變成橫的就寬了 |
-   | 完全看不到文字分頁 | 可能沒開成功 | 請他描述整個畫面，或截圖給你看 |
-
-   **確認他真的到了**：網路分頁點開後，中間會是一片空白，
-   上面有一排篩選鈕（`全部 / All`、`Fetch/XHR`、`JS`、`CSS`…）。
-   請他回報看到這排字再繼續。
-2. 重新整理頁面（Windows `F5`，Mac `⌘` `R`）。
-   剛剛那片空白會**跑出一長串灰色的列**，每一列是一個請求。沒東西跑出來就是還沒重新整理。
-3. 點**最上面第一列**（通常叫 `cool.ntu.edu.tw` 或一串數字）。點下去右半邊會展開細節。
-4. 細節區的**最上排**又有一排小分頁：`標頭 酬載 預覽 回應 …`
-   （`Headers Payload Preview Response …`）。點 **「標頭」/「Headers」**。
-   然後在細節區裡**往下捲**，找到粗體標題 **「要求標頭」/「Request Headers」**。
-   > 這裡也可能被 `»` 收起來，處理方式跟第 1 步的表格一樣。
-5. 找到開頭是 **`Cookie:`** 的那一行。
-   > Chrome 若顯示成一顆顆小標籤而不是一整行文字，把右上角的
-   > **「原始」/「Raw」** 打勾就會變成一整行。
-6. 把那一行**整行選起來複製**（`Ctrl`/`⌘` + `C`）。很長是正常的。
-   連開頭的 `Cookie:` 一起複製也沒關係，程式會自己處理。
-
-**複製好就好，不用貼給你，也不用開終端機。** 請他複製完回你一聲。
-
-## 步驟 5：你自己建權杖
-
-他說複製好了，**你直接執行**：
-
-```bash
-node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --from-clipboard --save
-```
-
-程式自己從剪貼簿讀、自己存檔，權杖值不會出現在畫面或對話裡。
-
-出錯時對應：
-
-| 訊息 | 意思 | 怎麼辦 |
-|---|---|---|
-| `剪貼簿是空的` | 沒複製到 | 回步驟 4 第 6 步 |
-| `cookie 裡沒有 _csrf_token` | 只選到一部分 | 回步驟 4 第 6 步，強調要**整行** |
-| `HTTP 401` | 登入狀態過期 | 請他重新登入 NTU COOL，再從步驟 4 做一次 |
-| `讀不到剪貼簿` | Linux 缺 xclip | 請他裝 xclip |
-
-成功會印出權杖 id 和到期時間。接著請他**清空剪貼簿**（隨便複製別的東西即可）。
-
-## 步驟 6：你自己驗證並建課號快取
-
-```bash
-node --env-file="$HOME/.ntu-cool/token.env" -e "fetch('https://cool.ntu.edu.tw/api/v1/courses?enrollment_state=active&per_page=100',{headers:{Authorization:'Bearer '+process.env.NTU_COOL_TOKEN}}).then(r=>r.json()).then(c=>console.log(JSON.stringify(Array.isArray(c)?c.map(x=>({id:x.id,name:x.name,code:x.course_code})):c)))"
+```js
+// …貼上 SKILL.md 的 cool() …
+(await cool('/courses?enrollment_state=active&per_page=100'))
+  .map(c => ({ id: c.id, name: c.name, code: c.course_code }))
 ```
 
 - 出現課程清單 → 成功。把課名念給他確認，然後用 Write 寫 `~/.ntu-cool/courses.json`：
   `{ "updatedAt": "<今天日期>", "courses": [ { "id": 0, "name": "", "code": "" } ] }`
-- `Invalid access token` → 權杖沒建成功，回步驟 5。
+- 丟出「未登入」→ 回步驟 3。
 
-## 步驟 7：告訴他可以用了
+## 步驟 5：告訴他可以用了
 
 給兩三個他真的會問的例子：
 「我這禮拜有什麼作業要交？」「總經最新公告是什麼？」「幫我把桌面的報告.pdf 交到個經作業二」。
-順帶說明交作業前一定會先給他確認。
+順帶說明：只要 Chrome 保持登入就一直能用，交作業前一定會先給他確認。
 
-之後要撤銷權杖也是**你幫他跑**：
+設定完**回頭把他原本問的事做完**，不要讓他重問一次。
+
+---
+
+## 備援：本機權杖（裝不了擴充功能，或要寫後端排程時）
+
+> ⚠️ 台大會作廢學生自建的權杖（實測 11/2 建的 11/5 就失效），所以這是備援，不是預設。
+
+### B1. 偵測環境
 
 ```bash
-node --env-file="$HOME/.ntu-cool/token.env" "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --list
-node --env-file="$HOME/.ntu-cool/token.env" "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --delete <id>
+node -e "console.log('平台:',process.platform,'｜node:',process.version)"
+node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status
 ```
+
+- `node` 低於 v20.12 → 請他先升級 Node。
+- `--status` 印 `已設定` → 已經有一把能用的，問他要沿用還是重建；`已失效` → 直接重建（可覆蓋）。
+
+### B2. 帶他複製整行 Cookie
+
+一次講一步（按鈕名稱中英並列，他的瀏覽器語言可能是任一種）：
+
+1. 登入 `cool.ntu.edu.tw` 停在課程首頁，開開發者工具
+   （Chrome／Edge：`F12` 或 `Ctrl/⌘ Shift I`；Firefox：`Ctrl/⌘ Shift E` 直接開網路面板）。
+2. 到「網路 / Network」分頁，重新整理頁面，點最上面第一列。
+3. 右邊「標頭 / Headers」→ 往下找「要求標頭 / Request Headers」→ 開頭 `Cookie:` 的那一行。
+   Chrome 顯示成小標籤時，把右上角「原始 / Raw」打勾變成一整行。
+4. **整行**複製（含 `_csrf_token`）。複製好回你一聲，**不用貼給你**。
+
+### B3. 你自己建權杖並驗證
+
+```bash
+node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --from-clipboard --save
+node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status
+```
+
+程式自己從剪貼簿讀、自己寫進 `~/.ntu-cool/token.env`（權限 600），權杖值不會進畫面或對話。
+成功後請他**清空剪貼簿**。`--status` 印出 `已設定` 和到期日就完成了。
+
+| 訊息 | 怎麼辦 |
+|---|---|
+| `cookie 裡沒有 _csrf_token` | 回 B2，強調要**整行** |
+| `HTTP 401` | 登入狀態過期，請他重新登入再複製一次 |
+| `讀不到剪貼簿`（Linux） | 請他裝 xclip |
 
 ---
 
 ## 全程規則
 
-- **不要**讀取或印出 `token.env`。權杖值永遠不進對話。
-- **不要**一次丟一堆指令或步驟。一次一個動作，等他回覆。
-- 他說「找不到」「看不到」時，不要把同一段話再講一次 —— 改問他螢幕上現在看到什麼，
-  或請他描述一下，再針對他的畫面給下一步。
-- 若他自己把 cookie 貼進對話了，不用責備他，照樣用
-  `NTU_COOL_COOKIE='<他貼的>' node ".../create-token.mjs" --save` 完成設定，
-  結束後提醒他：那段內容留在本機對話紀錄裡，到 NTU COOL 登出再登入就會失效，
-  而已經建好的權杖不受影響。
-- 能你執行的就你執行，不要為了省事把工作推給使用者。
+- **不要**讀取或印出 `token.env`，權杖值永遠不進對話。
+- **不要**一次丟一堆步驟，一次一個動作，等他回覆。
+- 他說「找不到」「看不到」時，改問他螢幕上看到什麼，再針對他的畫面給下一步。
+- 絕不代替他登入或輸入帳號密碼。
+- 能你執行的就你執行，不要把工作推給使用者。

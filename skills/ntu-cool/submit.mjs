@@ -90,7 +90,7 @@ async function canvas(method, apiPath, body) {
   const text = await res.text();
   if (res.status === 401 || res.status === 403) {
     throw new Error(token
-      ? '權杖無效或已被刪除，請重新產生一把（create-token.mjs --save）'
+      ? '權杖已失效（過期、被刪除或被學校作廢），請重跑 ntu-setup 建一把新的'
       : 'cookie 已失效（多半是登出過），請重新複製整行 Cookie');
   }
   if (!res.ok) throw new Error(`NTU COOL 回應 ${res.status}：${text.slice(0, 300)}`);
@@ -114,16 +114,14 @@ console.log(`已繳交：${assignment.submission?.submitted_at || '尚未'}`);
 
 if (dryRun) {
   console.log('\n--dry-run：只檢查，沒有送出任何東西。');
+} else if (closed) {
+  // 用 exitCode 而不是 process.exit()：Windows 上 fetch 之後 process.exit() 會讓 Node 當掉
+  console.error('\n這份作業已關閉，不能再繳交。');
+  process.exitCode = 1;
+} else if (!types.includes('online_upload')) {
+  console.error('\n這份作業不接受上傳檔案，請改用其他方式繳交。');
+  process.exitCode = 1;
 } else {
-  if (closed) {
-    console.error('\n這份作業已關閉，不能再繳交。');
-    process.exit(1);
-  }
-  if (!types.includes('online_upload')) {
-    console.error('\n這份作業不接受上傳檔案，請改用其他方式繳交。');
-    process.exit(1);
-  }
-
   const buffer = fs.readFileSync(filePath);
   const fileName = path.basename(filePath);
   console.log(`\n準備繳交：${fileName}（${(buffer.length / 1024).toFixed(1)} KB）`);
