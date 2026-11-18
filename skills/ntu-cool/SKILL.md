@@ -35,9 +35,24 @@ NTU COOL 是台大的線上學習系統（LMS），網址 https://cool.ntu.edu.t
    ```js
    location.pathname.startsWith('/login') ? '未登入' : '已登入'
    ```
-   - `未登入` → 嘗試用 Chrome 密碼管理員半自動登入（見下方〈半自動登入〉），
-     成功就直接往下做；失敗才請使用者自己在分頁裡登入，他說好了再重跑這一步。
-   - `已登入` → 往下做。
+   - `已登入` → 往下做。另外**每次**都跑一下 `node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status`，
+     `未設定`／`已失效` 就照〈從 Chrome 自動建權杖〉補一把，不用問使用者。
+     這樣他之後被登出時，還有權杖可以用。
+   - `未登入` → 先跑 `--status`：
+     - `已設定` → **先不用登入**。查詢類的事改用權杖做（見〈登出時用權杖查〉）；
+       交作業用 `submit.mjs`（一樣先 `--dry-run`、等他明確說交）。做完再順便告訴他 Chrome 是登出狀態。
+     - `未設定`／`已失效`，或要做的事權杖做不到 → 照下方〈半自動登入〉登入，
+       失敗才請使用者自己在分頁裡登入，他說好了再重跑這一步。
+
+### 登出時用權杖查
+
+```bash
+node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/api.mjs" 'courses?enrollment_state=active&per_page=100'
+```
+
+- 路徑跟 `cool()` 一樣是 `/api/v1` 後面那段，但**開頭不要加 `/`**（Windows 的 Git Bash 會改寫它）。
+- 只能 GET。輸出是完整 JSON，用 `node -e` 或 `jq` 挑好欄位再看，不要整包讀進對話。
+- 印 `已失效` → 權杖被學校作廢了，改走〈半自動登入〉，登入後照上面補一把新的。
 
 ### 半自動登入
 
@@ -58,15 +73,15 @@ NTU COOL 是台大的線上學習系統（LMS），網址 https://cool.ntu.edu.t
 
 設定或登入完成後，**回頭把他原本問的事做完**，不要讓他重問一次。
 
-> **備援（權杖）**：要寫後端排程、或使用者明確要本機腳本時，才用同目錄的 `create-token.mjs` / `submit.mjs`。
+> **備援（權杖）**：Chrome 登出時、要寫後端排程、或使用者明確要本機腳本時，用同目錄的 `api.mjs` / `submit.mjs`。
 > 先跑 `node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/create-token.mjs" --status`：
 > `已設定` 就能用 `node "$CLAUDE_PLUGIN_ROOT/skills/ntu-cool/submit.mjs" --url <作業網址> <檔案> --dry-run`；
 > `未設定`／`已失效` → 照下面〈從 Chrome 自動建權杖〉重建，**不用叫使用者複製 cookie**。
 > **不要 `cat` `~/.ntu-cool/token.env`**，權杖值不能進對話。
 
-## 從 Chrome 自動建權杖（權杖備援失效時用）
+## 從 Chrome 自動建權杖（登入時發現沒有權杖或已失效就做）
 
-學校會作廢權杖，所以失效時就自動重建。使用者只要在 Chrome 登入著，什麼都不用做：
+學校會作廢權杖，所以每次登入著的時候發現沒有能用的，就自動補一把。使用者什麼都不用做：
 
 1. **背景**啟動接收端（`run_in_background`），讀它的輸出拿到第一行 `PORT=… NONCE=…`：
    ```bash
