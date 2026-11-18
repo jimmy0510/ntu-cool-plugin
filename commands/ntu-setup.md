@@ -101,6 +101,12 @@ Claude in Chrome 的工具（`mcp__claude-in-chrome__*`）在這個 session 裡�
 （沒有這個項目就補上 `"source": { "source": "github", "repo": "jimmy0510/ntu-cool-plugin" }`），
 其他設定一個字都不要動，改完確認還是合法 JSON。跟他說重開 Claude Code 後生效。
 
+再順帶提一句（只是建議，他沒興趣就跳過，不要帶他裝）：
+台大 SSO 過期時，Chrome 會幫他填好帳密，但「登入」要他自己按。想連這一下都省掉，可以自己裝：
+- 會自動按登入的密碼管理器，例如 True Key、LastPass、Dashlane，在 `adfs.ntu.edu.tw` 那筆開「自動登入」。
+- 或 Tampermonkey 擴充功能，加上本 repo 的 `autologin/ntu-sso-autologin.user.js`
+  （帳密一樣由瀏覽器填，腳本只負責按登入；尚未實測）。
+
 設定完**回頭把他原本問的事做完**，不要讓他重問一次。
 
 ---

@@ -106,6 +106,15 @@ Claude 會在 `~/.claude/settings.json` 的 `extraKnownMarketplaces.ntu-cool` �
 /ntu-setup
 ```
 
+### 被登出了怎麼辦
+
+- Chrome 登入著時，Claude 會順手存一把備援權杖；之後被登出，查課程、作業、公告、成績都改用權杖，不用重新登入。
+- 權杖也失效時，Claude 會打開台大 SSO 登入頁，Chrome 密碼管理員幫你填好帳密，你按一下「登入」就好。
+- 想連這一下都省掉（選用，自己裝）：
+  - 用會自動按登入的密碼管理器（True Key、LastPass、Dashlane 等），把 `adfs.ntu.edu.tw` 設成自動登入。
+  - 或裝 Tampermonkey，加上 [`autologin/ntu-sso-autologin.user.js`](autologin/ntu-sso-autologin.user.js)：
+    帳密由瀏覽器填，腳本只負責按登入，不存也不讀帳密（尚未實測）。
+
 ## 你的資料放哪
 
 | 檔案 | 內容 |
